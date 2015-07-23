@@ -1,0 +1,209 @@
+##KNN####
+
+data<-read.csv("C:\\Users\\RYAN\\Desktop\\Churn capstone.csv")
+
+
+head(data)
+
+sapply(data, class)
+
+data$Area.Code <- NULL
+
+data$State <- NULL
+
+data$Phone <- NULL
+
+head(data)
+
+data$Churn<-factor(data$Churn)
+
+
+rn_train <- sample(nrow(data), floor(nrow(data)*0.7))
+train <- data[rn_train,]
+test <- data[-rn_train,]
+
+#KNN analysis using WEKA
+
+classifier <- IBk(Churn ~., data = train,
+                  control = Weka_control(K = 20))
+evaluate_Weka_classifier(classifier, numFolds = 10)
+
+classifier <- IBk(Churn ~., data = train,
+                  control = Weka_control(K = 5))
+evaluate_Weka_classifier(classifier, numFolds = 10)
+
+
+classifier <- IBk(Churn ~., data = train,
+                  control = Weka_control(K = 1))
+evaluate_Weka_classifier(classifier, numFolds = 10)
+
+p<-predict(classifier, test)
+
+results<-data.frame(test, p)
+
+count (results$Churn==results$p)
+
++
+
+#####K fold validation####
+
+folds <- createFolds(data$Churn)
+
+for (f in folds){
+  train <- data[-f,]
+  test <- data[f,]
+  #do stuff
+}
+
+####normalized function for knn analysis####
+doit <- function(x) {(x - min(x, na.rm=TRUE))/(max(x,na.rm=TRUE) -
+                                                 min(x, na.rm=TRUE))}
+normed <- as.data.frame(lapply(data, doit))
+
+normed$Churn<-factor(normed$Churn)
+
+rn_train <- sample(nrow(normed), floor(nrow(normed)*0.7))
+train <- normed[rn_train,]
+test <- normed[-rn_train,]
+
+classifier <- IBk(Churn ~., data = train,
+                  control = Weka_control(K = 5))
+evaluate_Weka_classifier(classifier, numFolds = 10)
+
+p<-predict(classifier, test)
+
+results<-data.frame(test, p)
+
+count (results$Churn==results$p)
+
+#####
+
+###Logistic Regression####
+
+data<-read.csv("C:\\Users\\RYAN\\Desktop\\Churn capstone.csv")
+
+data$Area.Code <- NULL
+
+data$State <- NULL
+
+data$Phone <- NULL
+
+rn_train <- sample(nrow(data),
+                   floor(nrow(data)*0.7))
+train <- data[rn_train,]
+test <- data[-rn_train,]
+
+fit = glm(Churn ~ ., data = data, family=binomial)
+summary(fit)
+
+fit = glm(Churn ~ Int.l.Plan + VMail.Plan + Intl.Calls + 
+            CustServ.Calls, data = train,family = "binomial")
+
+summary(fit)
+
+
+churn_prob <- predict(fit, type="response",
+                       newdata=test)
+pred<-prediction(churn_prob, test$Churn)
+
+
+c <- confusionMatrix(as.integer(churn_prob > 0.5),
+                     test$Churn)
+c$table
+
+
+
+#################
+data$Churn<-factor(data$Churn)
+weka_fit <- Logistic(Churn ~ Int.l.Plan + VMail.Plan + Intl.Calls + 
+                       CustServ.Calls,
+                     data = data)
+evaluate_Weka_classifier(weka_fit, numFolds = 10)
+
+
+
+folds <- createFolds(data$Churn)
+
+for (f in folds){
+  train <- data[-f,]
+  test <- data[f,]
+  #do stuff
+}
+
+###EDA###
+
+
+data<-read.csv("C:\\Users\\RYAN\\Desktop\\Churn capstone.csv")
+
+churn_data$Area.Code <- NULL
+
+churn_data$State <- NULL
+
+churn_data$Phone <- NULL
+
+
+sapply(mtcars, class)
+
+cor(churn_data)
+
+library("ggplot2")
+
+qplot(Churn, data = churn_data)
+
+
+cor(churn_data)
+
+mylogit <- glm(Churn ~ Account.Length + VMail.Message + Day.Mins + Eve.Mins + Night.Mins + Intl.Mins + Day.Calls + Day.Charge + Eve.Calls + Eve.Charge + Night.Calls + Night.Charge + Intl.Calls + Intl.Charge + CustServ.Calls, data = data, family = "binomial")
+
+summary(mylogit)
+
+histogram(data$Account.Length,col="red" , main="Histogram of Customer Account Length", xlab="Account Length Label")
+
+histogram(data$Day.Mins,col="red" , main="Histogram of Day Minutes Consumed", xlab="Day Minutes")
+
+
+histogram(data$CustServ.Calls,col="red" , main="Histogram of Customer Service Calls", xlab="Customer Service Calls")
+
+####Naive Bayes###3
+
+data<-read.csv("C:\\Users\\RYAN\\Desktop\\Churn capstone.csv")
+
+data$Area.Code <- NULL
+
+data$State <- NULL
+
+data$Phone <- NULL
+
+
+data$Churn<-factor(data$Churn)
+
+rn_train <- sample(nrow(data), floor(nrow(data)*0.7))
+train <- data[rn_train,]
+test <- data[-rn_train,]
+
+model <- NaiveBayes(Churn~., data=train)
+
+plot(model)
+
+
+predictions <- predict(model, test)
+
+# summarize results
+
+confusionMatrix(predictions$class, test$Churn)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
